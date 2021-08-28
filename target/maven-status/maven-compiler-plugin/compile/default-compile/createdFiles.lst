@@ -1,0 +1,6 @@
+prueba\ManejoPersonas.class
+datos\Conexion.class
+datos\PersonaDAO.class
+dominio\Usuario.class
+dominio\Persona.class
+datos\UsuarioDAO.class
