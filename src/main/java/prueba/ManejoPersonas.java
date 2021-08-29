@@ -19,20 +19,24 @@ public class ManejoPersonas {
 
 		Connection conexion = null;
 		try {
-			//
+			//conexion externa (conexion de transaccion) para mantener abierta la conexion
 			conexion = Conexion.getConnection();
 			if (conexion.getAutoCommit()) {
 				conexion.setAutoCommit(false);
 			}
-
+			//le pasamos la conexion
 			PersonaDAO personaDao = new PersonaDAO(conexion);
 			gestionPersonal(personaDao);
+			//si no hay ningun error al ejecutar las sentencias(transaccion),se podrá guardar los cambios
+			//por eso procesamos las excepciones en este punto y no en los metodos correspondientes.
 			conexion.commit();
 
 		} catch (SQLException ex) {
 			JOptionPane.showMessageDialog(null, ex);
 			JOptionPane.showMessageDialog(null, "Ejecutando rollback");
 			try {
+				//si hay algun error por ejemplo; si supera los caracteres del nombre o apellido
+				//se revertiran los cambios al ejecutar rollback.
 				conexion.rollback();
 			} catch (SQLException ex1) {
 				JOptionPane.showMessageDialog(null, ex1);
@@ -42,6 +46,12 @@ public class ManejoPersonas {
 	}//----FIN DEL MAIN------
 
 	//*************************************** GESTION PERSONAS ****************************
+	/**
+	 * En este metodo podemos realizar:SELECT,INSERT,UPDATE Y DELETE alguna de estas sentencias modifican el estado de la BD(transaccion) Todas estas sentencias formaran una transaccion y si algo falla no se guardara ninguna sentencia.
+	 *
+	 * @param personaDao la clase que se encarga del acceso a datos (JDBC).
+	 * @throws SQLException Las excepciones de deben propagar para poder utilizar el commit o rollbac en el main
+	 */
 	public static void gestionPersonal(PersonaDAO personaDao) throws SQLException {
 		int opc = 0;
 		boolean salir = false;
@@ -79,6 +89,7 @@ public class ManejoPersonas {
 			JOptionPane.showMessageDialog(null, "Error al ingresar opcion", "Error de entrada", JOptionPane.WARNING_MESSAGE);
 		}
 	}
+//propagamos las excepciones para controlar la transaccion en el main
 
 	public static void imprimirPersonas(PersonaDAO personaDao) throws SQLException {
 		List<Persona> personas = new ArrayList<>();
